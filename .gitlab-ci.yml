@@ -1,0 +1,21 @@
+variables:
+  IMAGE: ixdotai/openvpn
+  DEBUG: 1
+
+services:
+  - docker:dind
+
+test:
+  image: docker:latest
+  before_script:
+    - docker --version
+    - git clone https://github.com/docker-library/official-images.git official-images
+    - docker build -t "$IMAGE" .
+    - docker inspect "$IMAGE"
+    - docker run --rm "$IMAGE" openvpn --version || true # why does it return 1?
+    - docker run --rm "$IMAGE" openssl version
+  script:
+    - official-images/test/run.sh "$IMAGE"
+    - test/run.sh "$IMAGE"
+  after_script:
+    - docker images
