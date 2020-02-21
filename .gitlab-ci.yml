@@ -9,6 +9,7 @@ test:
   image: docker:latest
   before_script:
     - docker --version
+    - git --version || apk add --no-cache git
     - git clone https://github.com/docker-library/official-images.git official-images
     - docker build -t "$IMAGE" .
     - docker inspect "$IMAGE"
