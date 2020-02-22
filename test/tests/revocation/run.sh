@@ -16,7 +16,7 @@ function cleanup {
   docker stop "${NAME}" || true
   docker rm "${NAME}" || true
   docker volume rm "${OVPN_DATA}" || true
-  iptables -D FORWARD 1 || true
+  iptables -D FORWARD 1  2>&1 || true
 }
 
 [ -n "${DEBUG+x}" ] && set -x
@@ -33,14 +33,14 @@ SERV_IP="$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::
 # Initialize openvpn configuration and pki.
 #
 docker volume create --name $OVPN_DATA
-docker run --rm -v $OVPN_DATA:/etc/openvpn $IMG ovpn_genconfig -u udp://$SERV_IP
-docker run --rm -v $OVPN_DATA:/etc/openvpn -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass
+docker run --rm -v $OVPN_DATA:/etc/openvpn $IMG ovpn_genconfig -u udp://$SERV_IP 2>&1
+docker run --rm -v $OVPN_DATA:/etc/openvpn -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass 2>&1
 
 #
 # Fire up the server.
 #
-iptables -N DOCKER || echo 'Firewall already configured'
-iptables -I FORWARD 1 -j DOCKER || echo 'Forward already configured'
+iptables -N DOCKER 2>&1|| echo 'Firewall already configured'
+iptables -I FORWARD 1 -j DOCKER 2>&1|| echo 'Forward already configured'
 docker run --log-driver local -d --name "${NAME}" -e "DEBUG=${DEBUG+1}" -v $OVPN_DATA:/etc/openvpn -p 1194:1194/udp --privileged $IMG
 
 # Set the correct IP address for the server

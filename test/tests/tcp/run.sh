@@ -14,7 +14,7 @@ function cleanup {
   docker rm "${NAME}" || true
   docker rm "${CLIENT}" || true
   docker volume rm "${OVPN_DATA}" || true
-  iptables -D FORWARD 1 || true
+  iptables -D FORWARD 1  2>&1 || true
 }
 
 [ -n "${DEBUG+x}" ] && set -x
@@ -30,12 +30,12 @@ SERV_IP=$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::'
 
 docker volume create "${OVPN_DATA}"
 
-docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_genconfig -u tcp://$SERV_IP > /dev/null 2>&1
+docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_genconfig -u tcp://$SERV_IP 2>&1
 
 # nopass is insecure
-docker run -v $OVPN_DATA:/etc/openvpn --rm -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass > /dev/null 2>&1
+docker run -v $OVPN_DATA:/etc/openvpn --rm -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass 2>&1
 
-docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG easyrsa build-client-full $CLIENT nopass  > /dev/null 2>&1
+docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG easyrsa build-client-full $CLIENT nopass  2>&1
 
 docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_getclient $CLIENT | tee $CLIENT_DIR/config.ovpn
 
@@ -44,8 +44,8 @@ docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_listclients | grep $CLIENT
 #
 # Fire up the server
 #
-iptables -N DOCKER || echo 'Firewall already configured'
-iptables -I FORWARD 1 -j DOCKER || echo 'Forward already configured'
+iptables -N DOCKER 2>&1|| echo 'Firewall already configured'
+iptables -I FORWARD 1 -j DOCKER 2>&1|| echo 'Forward already configured'
 
 docker run --log-driver local -d --name "${NAME}" -e "DEBUG=${DEBUG+1}" -v $OVPN_DATA:/etc/openvpn -p 443:1194/tcp --privileged $IMG ovpn_run --proto tcp
 
@@ -60,7 +60,7 @@ test -n "${ACTUAL_SERV_IP}" || false
 sed -ie s:${SERV_IP}:${ACTUAL_SERV_IP}:g "${CLIENT_DIR}/config.ovpn"
 
 # Fire up a client in a container
-docker run --privileged --name "${CLIENT}" -e "DEBUG=${DEBUG+x}" --volume $CLIENT_DIR:/client $IMG /client/wait-for-connect.sh > /dev/null 2>&1
+docker run --privileged --name "${CLIENT}" -e "DEBUG=${DEBUG+x}" --volume $CLIENT_DIR:/client $IMG /client/wait-for-connect.sh 2>&1
 
 #
 # Clean up after the run

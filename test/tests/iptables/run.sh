@@ -16,7 +16,6 @@ function cleanup {
   docker stop "${NAME}" || true
   docker rm "${NAME}" || true
   docker volume rm "${OVPN_DATA}" || true
-  iptables -D FORWARD 1 || true
 }
 
 [ -n "${DEBUG+x}" ] && set -x
@@ -28,7 +27,7 @@ SERV_IP=$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::'
 # generate server config including iptables nat-ing
 docker volume create --name $OVPN_DATA
 docker run --rm -v $OVPN_DATA:/etc/openvpn $IMG ovpn_genconfig -u udp://$SERV_IP -N > /dev/null 2>&1
-docker run -v $OVPN_DATA:/etc/openvpn --rm -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass > /dev/null 2>&1
+docker run -v $OVPN_DATA:/etc/openvpn --rm -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass 2>&1
 
 # Fire up the server
 docker run -d --name $NAME -v $OVPN_DATA:/etc/openvpn --cap-add=NET_ADMIN $IMG
