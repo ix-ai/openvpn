@@ -7,11 +7,11 @@ testAlias+=(
 
 imageTests+=(
 	[openvpn]='
-		basic
+		udp
+		tcp
 		paranoid
   	conf_options
   	client
-  	dual-proto
   	otp
 		iptables
 		revocation
