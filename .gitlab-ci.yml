@@ -1,5 +1,5 @@
 variables:
-  IMAGE: ixdotai/openvpn
+  DOCKERHUB_REPO_NAME: openvpn
   DOCKER_TLS_CERTDIR: "/certs"
   DOCKER_CERT_PATH: "/certs/client"
   DOCKER_TLS: 'true'
@@ -17,10 +17,10 @@ test:
   image: docker:latest
   stage: test
   before_script:
-    - docker build --tag "${IMAGE}" .
-    - docker inspect "${IMAGE}"
-    - docker run --rm "${IMAGE}" openvpn --version || true # why does it return 1?
-    - docker run --rm "${IMAGE}" openssl version
+    - docker build --tag "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}" .
+    - docker inspect "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
+    - docker run --rm "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}" openvpn --version || true # why does it return 1?
+    - docker run --rm "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}" openssl version
     - apk add --no-cache bash git iptables
     - git clone https://github.com/docker-library/official-images.git official-images
   script:
@@ -42,8 +42,8 @@ deploy:
     - export DESTINATIONS="--tag ${CI_REGISTRY_IMAGE}:${TAG}"
     - |
       if [ -n "${DOCKERHUB_USERNAME}" ] && [ -n "${DOCKERHUB_PASSWORD}" ]; then
-        echo "Tagging with ${IMAGE}:${TAG}"
-        export DESTINATIONS="${DESTINATIONS} --tag ${IMAGE}:${TAG}"
+        echo "Tagging with ${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}:${TAG}"
+        export DESTINATIONS="${DESTINATIONS} --tag ${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}:${TAG}"
       fi
     - echo docker buildx build --platform="$CI_BUILDX_ARCHS" --progress=plain --pull --push ${DESTINATIONS} .
     - docker buildx build --platform="$CI_BUILDX_ARCHS" --progress=plain --pull --push ${DESTINATIONS} .
@@ -58,7 +58,7 @@ dockerhub:readme:
   variables:
     README_PATH: ${CI_PROJECT_DIR}/README.md
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "master" && $DOCKERHUB_REPO_NAME =~ /.+/ && $DOCKERHUB_PASSWORD =~ /.+/'
+    - if: '$CI_COMMIT_REF_NAME == "master" && $DOCKERHUB_REPO_NAME =~ /.+/ && $DOCKERHUB_USERNAME =~ /.+/ && $DOCKERHUB_PASSWORD =~ /.+/'
       when: on_success
   image:
     name: sheogorath/readme-to-dockerhub:latest
