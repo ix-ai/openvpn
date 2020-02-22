@@ -93,7 +93,7 @@ usage() {
     echo "optional arguments:"
     echo " -2    Enable two factor authentication using Google Authenticator."
     echo " -a    Authenticate  packets with HMAC using the given message digest algorithm (auth)."
-    echo " -b    Disable 'push block-outside-dns'"
+    echo " -b    Disable 'setenv opt block-outside-dns'"
     echo " -c    Enable client-to-client option"
     echo " -C    A list of allowable TLS ciphers delimited by a colon (cipher)."
     echo " -d    Disable default route"
@@ -110,7 +110,7 @@ process_route_config() {
   local ovpn_route_config=''
   ovpn_route_config="$1"
   # If user passed "0" skip this, assume no extra routes
-  [[ "$ovpn_route_config" == "0" ]] && break;
+  [[ "$ovpn_route_config" == "0" ]] && return;
   echo "Processing Route Config: '${ovpn_route_config}'"
   [[ -n "$ovpn_route_config" ]] && echo "route $(getroute $ovpn_route_config)" >> "$TMP_ROUTE_CONFIGFILE"
 }
@@ -120,6 +120,13 @@ process_push_config() {
   ovpn_push_config="$1"
   echo "Processing PUSH Config: '${ovpn_push_config}'"
   [[ -n "$ovpn_push_config" ]] && echo "push \"$ovpn_push_config\"" >> "$TMP_PUSH_CONFIGFILE"
+}
+
+process_setenv_opt() {
+  local ovpn_setenv_opt=''
+  ovpn_setenv_opt="$1"
+  echo "Processing SETENV OPT Config: '${ovpn_setenv_opt}'"
+  [[ -n "$ovpn_setenv_opt" ]] && echo "setenv opt \"$ovpn_setenv_opt\"" >> "$TMP_PUSH_CONFIGFILE"
 }
 
 process_extra_config() {
@@ -341,9 +348,9 @@ group nogroup
 EOF
 
 if [ "${OVPN_DISABLE_PUSH_BLOCK_DNS}" == "1" ]; then
-  echo "Disable default push of 'block-outside-dns'"
+  echo "Disable default setenv opt for 'block-outside-dns'"
 else
-  process_push_config "block-outside-dns"
+  process_setenv_opt "block-outside-dns"
 fi
 
 [ -n "$OVPN_TLS_CIPHER" ] && echo "tls-cipher $OVPN_TLS_CIPHER" >> "$conf"
