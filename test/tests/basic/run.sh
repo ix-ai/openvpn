@@ -4,8 +4,17 @@ set -eE
 trap cleanup ERR
 
 function cleanup {
-  docker stop "ovpn-test" || true
-  docker rm "ovpn-test" || true
+  if [ ! "${1}" == "OK" ]; then
+    echo "The logs for ${NAME}"
+    docker logs "${NAME}" || true
+    echo "The logs for ${CLIENT}"
+    docker logs "${CLIENT}" || true
+  fi
+  docker stop "${NAME}" || true
+  docker rm "${NAME}" || true
+  docker rm "${CLIENT}" || true
+  docker volume rm "${OVPN_DATA}" || true
+  iptables -D FORWARD 1 || true
 }
 
 [ -n "${DEBUG+x}" ] && set -x
@@ -13,10 +22,14 @@ function cleanup {
 OVPN_DATA=basic-data
 CLIENT=gitlab-client
 IMG=ixdotai/openvpn
-CLIENT_DIR="$(readlink -f "$(dirname "$BASH_SOURCE")/../../client")"
+NAME="ovpn-basic"
+CLIENT_DIR="$(readlink -f "$(dirname "${BASH_SOURCE[0]}")/../../client")"
 
 ip addr ls
 SERV_IP=$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::' | head -n1)
+
+docker volume create "${OVPN_DATA}"
+
 docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_genconfig -u udp://$SERV_IP > /dev/null 2>&1
 
 # nopass is insecure
@@ -31,28 +44,28 @@ docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_listclients | grep $CLIENT
 #
 # Fire up the server
 #
-sudo iptables -N DOCKER || echo 'Firewall already configured'
-sudo iptables -I FORWARD -j DOCKER || echo 'Forward already configured'
-# run in shell bg to get logs
-docker run -d --name "ovpn-test" -v $OVPN_DATA:/etc/openvpn --rm -p 1194:1194/udp --privileged $IMG
+iptables -N DOCKER || echo 'Firewall already configured'
+iptables -I FORWARD 1 -j DOCKER || echo 'Forward already configured'
 
-#for i in $(seq 10); do
-#    SERV_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}')
-#    test -n "$SERV_IP" && break
-#done
-#sed -ie s:SERV_IP:$SERV_IP:g config.ovpn
+docker run --log-driver local -d --name "${NAME}" -e "DEBUG=${DEBUG+1}" -v $OVPN_DATA:/etc/openvpn -p 1194:1194/udp --privileged $IMG
+
+# Set the correct IP address for the server
+COUNTER=0
+while [ ${COUNTER} -le 10 ]; do
+  ACTUAL_SERV_IP=$(docker inspect "${NAME}" --format '{{ .NetworkSettings.IPAddress }}')
+  test -n "${ACTUAL_SERV_IP}" && break
+  COUNTER=$(( ${COUNTER} + 1 ))
+done
+test -n "${ACTUAL_SERV_IP}" || false
+sed -ie s:${SERV_IP}:${ACTUAL_SERV_IP}:g "${CLIENT_DIR}/config.ovpn"
+
+# Fire up a client in a container
+docker run --privileged --name "${CLIENT}" -e "DEBUG=${DEBUG+x}" --volume $CLIENT_DIR:/client $IMG /client/wait-for-connect.sh > /dev/null 2>&1
 
 #
-# Fire up a client in a container since openvpn is disallowed by GitLab-CI, don't NAT
-# the host as it confuses itself:
-# "Incoming packet rejected from [AF_INET]172.17.42.1:1194[2], expected peer address: [AF_INET]10.240.118.86:1194"
+# Clean up after the run
 #
-docker run --rm --net=host --privileged --volume $CLIENT_DIR:/client $IMG /client/wait-for-connect.sh  > /dev/null 2>&1
-
-#
-# Client either connected or timed out, kill server
-#
-cleanup
+cleanup OK
 
 #
 # Celebrate
