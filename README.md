@@ -9,9 +9,6 @@
 
 OpenVPN server in a Docker container complete with an EasyRSA PKI CA.
 
-Extensively tested on [Digital Ocean $5/mo node](http://bit.ly/1C7cKr3) and has
-a corresponding [Digital Ocean Community Tutorial](http://bit.ly/1AGUZkq).
-
 #### Upstream Links
 
 * Docker Registry @ [ixdotai/openvpn](https://hub.docker.com/r/ixdotai/openvpn/)
@@ -196,16 +193,13 @@ of a guarantee in the future.
   volume for re-use across containers
 * Addition of tls-crypt for security & censorship circumvention in some regions
 
-## Originally Tested On
+## Differences from kylemanna/docker-openvpn (as of 22.02.2020)
 
-* Docker hosts:
-  * server a [Digital Ocean](https://www.digitalocean.com/?refcode=d19f7fe88c94) Droplet with 512 MB RAM running Ubuntu 14.04
-* Clients
-  * Android App OpenVPN Connect 1.1.14 (built 56)
-     * OpenVPN core 3.0 android armv7a thumb2 32-bit
-  * OS X Mavericks with Tunnelblick 3.4beta26 (build 3828) using openvpn-2.3.4
-  * ArchLinux OpenVPN pkg 2.3.4-1
-
+* Fixed security bugs in TOTP
+* Uses CloudFlare DNS per default, instead of Google
+* The tests actually work
+* Uses tls-crypt instead of tls-auth
+* Displays the QR Code for TOTP, by using `libqrencode`
 
 ## Credits
 
