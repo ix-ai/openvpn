@@ -13,22 +13,22 @@ In order to enable two factor authentication the following steps are required.
 
 1. Generate server configuration with the `-2` option. It's no longer necessary to supply the cipher option because OpenVPN 2.4 [uses AES-256-GCM by default](https://community.openvpn.net/openvpn/wiki/SWEET32).
     ```bash
-    docker run -v $OVPN_DATA:/etc/openvpn --rm kylemanna/openvpn ovpn_genconfig -u udp://vpn.example.com -2
+    docker run -v $OVPN_DATA:/etc/openvpn --rm ixdotai/openvpn ovpn_genconfig -u udp://vpn.example.com -2
     ```
 
 1. Init the EasyRSA PKI.
     ```bash
-    docker run -v $PWD/data:/etc/openvpn --rm -it kylemanna/openvpn ovpn_initpki
+    docker run -v $PWD/data:/etc/openvpn --rm -it ixdotai/openvpn ovpn_initpki
     ```
 
 1. Generate your client certificate (possibly without a password since you're using OTP)
     ```bash
-    docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn easyrsa build-client-full <user> nopass
+    docker run -v $OVPN_DATA:/etc/openvpn --rm -it ixdotai/openvpn easyrsa build-client-full <user> nopass
     ```
 
 1. Generate authentication configuration for your client. `-t` is needed to display the QR code, `-i` is also needed as `google_authenticator` prompts you to enter an OTP token to test. The QR code can be scanned with the Google Authenticator application. It also provides a link to a Google chart url that will display a QR code for the authentication.
     ```bash
-    docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn ovpn_otp_user <user>
+    docker run -v $OVPN_DATA:/etc/openvpn --rm -it ixdotai/openvpn ovpn_otp_user <user>
     ```
 
 **Do not share QR code (or generated url) with anyone but final user, that is your second factor for authentication
@@ -67,7 +67,7 @@ If you have an existing installation with customised config, follow this tutoria
 
 1. Alternatively, you could regenerate the client config if yours doesn't have custom fields added.
     ```bash
-    docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm kylemanna/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
+    docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm ixdotai/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
     ```
 
 ## TL;DR
@@ -84,7 +84,7 @@ If something is not working you can verify your PAM setup with these commands
 
 ```
 # Start a shell in container
-docker run -v $OVPN_DATA:/etc/openvpn --rm -it kylemanna/openvpn bash
+docker run -v $OVPN_DATA:/etc/openvpn --rm -it ixdotai/openvpn bash
 
 # Then in container you have pamtester utility already installed
 which pamtester

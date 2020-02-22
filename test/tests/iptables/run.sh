@@ -1,16 +1,24 @@
 #!/bin/bash
-set -e
+set -eE
+
+trap cleanup ERR
+
+function cleanup {
+  docker kill "${NAME}" || true
+  docker rm "${NAME}" || true
+  docker volume rm "${OVPN_DATA}"
+}
 
 [ -n "${DEBUG+x}" ] && set -x
-OVPN_DATA=basic-data
-IMG="kylemanna/openvpn"
+OVPN_DATA=iptables-data
+IMG="ixdotai/openvpn"
 NAME="ovpn-test"
 SERV_IP=$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::' | head -n1)
 
 # generate server config including iptables nat-ing
 docker volume create --name $OVPN_DATA
 docker run --rm -v $OVPN_DATA:/etc/openvpn $IMG ovpn_genconfig -u udp://$SERV_IP -N
-docker run -v $OVPN_DATA:/etc/openvpn --rm -it -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=Travis-CI Test CA" $IMG ovpn_initpki nopass
+docker run -v $OVPN_DATA:/etc/openvpn --rm -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass
 
 # Fire up the server
 docker run -d --name $NAME -v $OVPN_DATA:/etc/openvpn --cap-add=NET_ADMIN $IMG
@@ -33,6 +41,4 @@ docker exec -ti $NAME bash -c 'source /etc/openvpn/ovpn_env.sh; type -t setupIpt
 # kill server
 #
 
-docker kill $NAME
-docker rm $NAME
-docker volume rm $OVPN_DATA
+cleanup

@@ -1,6 +1,6 @@
 variables:
   IMAGE: ixdotai/openvpn
-  DEBUG: 1
+  DEBUG: 'yes'
 
 services:
   - docker:dind
@@ -9,7 +9,7 @@ test:
   image: docker:latest
   before_script:
     - docker --version
-    - git --version || apk add --no-cache git
+    - apk add --no-cache bash git iptables sudo
     - git clone https://github.com/docker-library/official-images.git official-images
     - docker build -t "$IMAGE" .
     - docker inspect "$IMAGE"

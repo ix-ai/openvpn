@@ -2,18 +2,18 @@
 set -e
 
 testAlias+=(
-	[kylemanna/openvpn]='openvpn'
+	[ixdotai/openvpn]='openvpn'
 )
 
 imageTests+=(
 	[openvpn]='
-	paranoid
-        conf_options
-        client
-        basic
-        dual-proto
-        otp
-	iptables
-	revocation
+		basic
+		paranoid
+  	conf_options
+  	client
+  	dual-proto
+  	otp
+		iptables
+		revocation
 	'
 )

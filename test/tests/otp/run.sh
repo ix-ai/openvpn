@@ -1,11 +1,20 @@
 #!/bin/bash
-set -e
+set -eE
+
+trap cleanup ERR
+
+function cleanup {
+  docker kill "ovpn-test" || true
+  docker rm "ovpn-test" || true
+  docker volume rm "${OVPN_DATA}"
+  sudo iptables -D FORWARD 1
+}
 
 [ -n "${DEBUG+x}" ] && set -x
 
 OVPN_DATA=basic-data-otp
-CLIENT=travis-client
-IMG=kylemanna/openvpn
+CLIENT=gitlab-client
+IMG=ixdotai/openvpn
 OTP_USER=otp
 CLIENT_DIR="$(readlink -f "$(dirname "$BASH_SOURCE")/../../client")"
 
@@ -21,12 +30,12 @@ docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_genconfig -u udp://$SERV_IP
 docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG cat /etc/openvpn/openvpn.conf | grep 'reneg-sec 0' || abort 'reneg-sec not set to 0 in server config'
 
 # nopass is insecure
-docker run -v $OVPN_DATA:/etc/openvpn --rm -it -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=Travis-CI Test CA" $IMG ovpn_initpki nopass
+docker run -v $OVPN_DATA:/etc/openvpn --rm -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass
 
-docker run -v $OVPN_DATA:/etc/openvpn --rm -it $IMG easyrsa build-client-full $CLIENT nopass
+docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG easyrsa build-client-full $CLIENT nopass
 
 # Generate OTP credentials for user named test, should return QR code for test user
-docker run -v $OVPN_DATA:/etc/openvpn --rm -it $IMG ovpn_otp_user $OTP_USER | tee $CLIENT_DIR/qrcode.txt
+docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_otp_user $OTP_USER | tee $CLIENT_DIR/qrcode.txt
 # Ensure a chart link is printed in client OTP configuration
 grep 'https://www.google.com/chart' $CLIENT_DIR/qrcode.txt || abort 'Link to chart not generated'
 grep 'Your new secret key is:' $CLIENT_DIR/qrcode.txt || abort 'Secret key is missing'
@@ -50,9 +59,9 @@ grep 'reneg-sec 0' $CLIENT_DIR/config.ovpn || abort 'reneg-sec not set to 0 in c
 # Fire up the server
 #
 sudo iptables -N DOCKER || echo 'Firewall already configured'
-sudo iptables -I FORWARD -j DOCKER || echo 'Forward already configured'
+sudo iptables -I FORWARD 1 -j DOCKER || echo 'Forward already configured'
 # run in shell bg to get logs
-docker run --name "ovpn-test" -v $OVPN_DATA:/etc/openvpn --rm -p 1194:1194/udp --privileged $IMG &
+docker run -d --name "ovpn-test" -v $OVPN_DATA:/etc/openvpn --rm -p 1194:1194/udp --privileged $IMG
 
 #for i in $(seq 10); do
 #    SERV_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}')
@@ -61,7 +70,7 @@ docker run --name "ovpn-test" -v $OVPN_DATA:/etc/openvpn --rm -p 1194:1194/udp -
 #sed -ie s:SERV_IP:$SERV_IP:g $CLIENT_DIR/config.ovpn
 
 #
-# Fire up a client in a container since openvpn is disallowed by Travis-CI, don't NAT
+# Fire up a client in a container since openvpn is disallowed by GitLab-CI, don't NAT
 # the host as it confuses itself:
 # "Incoming packet rejected from [AF_INET]172.17.42.1:1194[2], expected peer address: [AF_INET]10.240.118.86:1194"
 #
@@ -70,7 +79,7 @@ docker run --rm --net=host --privileged --volume $CLIENT_DIR:/client $IMG /clien
 #
 # Client either connected or timed out, kill server
 #
-kill %1
+cleanup
 
 #
 # Celebrate

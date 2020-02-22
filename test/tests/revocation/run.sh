@@ -1,12 +1,21 @@
 #!/bin/bash
-set -e
+set -eE
+
+trap cleanup ERR
+
+function cleanup {
+  docker kill "${NAME}" || true
+  docker rm "${NAME}" || true
+  docker volume rm "${OVPN_DATA}"
+  sudo iptables -D FORWARD 1
+}
 
 [ -n "${DEBUG+x}" ] && set -x
 
-OVPN_DATA="basic-data"
-CLIENT1="travis-client1"
-CLIENT2="travis-client2"
-IMG="kylemanna/openvpn"
+OVPN_DATA="revocation-data"
+CLIENT1="gitlab-client1"
+CLIENT2="gitlab-client2"
+IMG="ixdotai/openvpn"
 NAME="ovpn-test"
 CLIENT_DIR="$(readlink -f "$(dirname "$BASH_SOURCE")/../../client")"
 SERV_IP="$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::' | head -n1)"
@@ -16,7 +25,7 @@ SERV_IP="$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::
 #
 docker volume create --name $OVPN_DATA
 docker run --rm -v $OVPN_DATA:/etc/openvpn $IMG ovpn_genconfig -u udp://$SERV_IP
-docker run --rm -v $OVPN_DATA:/etc/openvpn -it -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=Travis-CI Test CA" $IMG ovpn_initpki nopass
+docker run --rm -v $OVPN_DATA:/etc/openvpn -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass
 
 #
 # Fire up the server.
@@ -82,9 +91,7 @@ fi
 #
 # Stop the server and clean up
 #
-docker kill $NAME && docker rm $NAME
-docker volume rm $OVPN_DATA
-sudo iptables -D FORWARD 1
+cleanup
 
 #
 # Celebrate
