@@ -88,8 +88,8 @@ test_config "${SERVER_CONF}" "^route\s\+192.168.254.0\s\+255.255.255.0"
 test_config "${SERVER_CONF}" '^setenv opt\s\+"block-outside-dns"'
 
 # 10. Should see a push of 'dhcp-option DNS' by default
-test_config "${SERVER_CONF}" '^push\s\+"dhcp-option\s\+DNS\s\+8.8.8.8"'
-test_config "${SERVER_CONF}" '^push\s\+"dhcp-option\s\+DNS\s\+8.8.4.4"'
+test_config "${SERVER_CONF}" '^push\s\+"dhcp-option\s\+DNS\s\+1.1.1.1"'
+test_config "${SERVER_CONF}" '^push\s\+"dhcp-option\s\+DNS\s\+1.0.0.1"'
 
 ## Test for keepalive
 # 11. keepalive config
