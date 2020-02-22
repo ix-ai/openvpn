@@ -1,21 +1,67 @@
 variables:
   IMAGE: ixdotai/openvpn
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_CERT_PATH: "/certs/client"
+  DOCKER_TLS: 'true'
+  DOCKER_HOST: tcp://docker:2376/
+  ENABLE_ARM64: 'true'
 
 services:
   - docker:dind
 
+stages:
+  - test
+  - release
+
 test:
   image: docker:latest
+  stage: test
   before_script:
-    - docker --version
+    - docker build --tag "${IMAGE}" .
+    - docker inspect "${IMAGE}"
+    - docker run --rm "${IMAGE}" openvpn --version || true # why does it return 1?
+    - docker run --rm "${IMAGE}" openssl version
     - apk add --no-cache bash git iptables
     - git clone https://github.com/docker-library/official-images.git official-images
-    - docker build -t "$IMAGE" .
-    - docker inspect "$IMAGE"
-    - docker run --rm "$IMAGE" openvpn --version || true # why does it return 1?
-    - docker run --rm "$IMAGE" openssl version
   script:
     - official-images/test/run.sh "$IMAGE"
     - test/run.sh "$IMAGE"
+  only:
+    - merge_requests
+
+deploy:
+  image: ixdotai/docker-buildx-qemu:latest
+  stage: release
+  before_script:
+    - build/buildx-init.sh
+    - build/docker-login.sh
+  script:
+    - export CI_BUILDX_ARCHS="$(cat /tmp/${CI_PROJECT_NAME}-${CI_COMMIT_SHA}-platforms)"
+    - export TAG="${CI_COMMIT_REF_NAME}"
+    - if [ "${CI_COMMIT_REF_NAME}" == "master" ]; then export TAG="latest"; fi
+    - export DESTINATIONS="--tag ${CI_REGISTRY_IMAGE}:${TAG}"
+    - |
+      if [ -n "${DOCKERHUB_USERNAME}" ] && [ -n "${DOCKERHUB_PASSWORD}" ]; then
+        echo "Tagging with ${IMAGE}:${TAG}"
+        export DESTINATIONS="${DESTINATIONS} --tag ${IMAGE}:${TAG}"
+      fi
+    - echo docker buildx build --platform="$CI_BUILDX_ARCHS" --progress=plain --pull --push ${DESTINATIONS} .
+    - docker buildx build --platform="$CI_BUILDX_ARCHS" --progress=plain --pull --push ${DESTINATIONS} .
   after_script:
-    - docker images
+    - build/buildx-shutdown.sh
+  only:
+    - master
+    - tags
+
+dockerhub:readme:
+  stage: release
+  variables:
+    README_PATH: ${CI_PROJECT_DIR}/README.md
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master" && $DOCKERHUB_REPO_NAME =~ /.+/ && $DOCKERHUB_PASSWORD =~ /.+/'
+      when: on_success
+  image:
+    name: sheogorath/readme-to-dockerhub:latest
+    entrypoint: ['']
+  script:
+    - node /app/index.js
