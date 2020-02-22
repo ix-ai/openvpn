@@ -9,7 +9,7 @@ test:
   image: docker:latest
   before_script:
     - docker --version
-    - apk add --no-cache bash git iptables sudo
+    - apk add --no-cache bash git iptables
     - git clone https://github.com/docker-library/official-images.git official-images
     - docker build -t "$IMAGE" .
     - docker inspect "$IMAGE"
