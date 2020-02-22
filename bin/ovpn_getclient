@@ -108,7 +108,7 @@ tls-crypt ta.key 1
     fi
     
     if [ "$OVPN_DISABLE_PUSH_BLOCK_DNS" == "0" ];then
-      echo "block-outside-dns"
+      echo "setenv opt block-outside-dns"
     fi
 
     for dnsserver in "${!OVPN_DNS_SERVERS[@]}"; do
