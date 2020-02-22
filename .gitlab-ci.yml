@@ -1,6 +1,5 @@
 variables:
   IMAGE: ixdotai/openvpn
-  DEBUG: 'yes'
 
 services:
   - docker:dind
