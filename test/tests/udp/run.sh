@@ -30,12 +30,12 @@ SERV_IP=$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::'
 
 docker volume create "${OVPN_DATA}"
 
-docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_genconfig -u udp://$SERV_IP > /dev/null 2>&1
+docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_genconfig -u udp://$SERV_IP 2>&1
 
 # nopass is insecure
-docker run -v $OVPN_DATA:/etc/openvpn --rm -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass > /dev/null 2>&1
+docker run -v $OVPN_DATA:/etc/openvpn --rm -e "EASYRSA_BATCH=1" -e "EASYRSA_REQ_CN=GitLab-CI Test CA" $IMG ovpn_initpki nopass 2>&1
 
-docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG easyrsa build-client-full $CLIENT nopass  > /dev/null 2>&1
+docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG easyrsa build-client-full $CLIENT nopass 2>&1
 
 docker run -v $OVPN_DATA:/etc/openvpn --rm $IMG ovpn_getclient $CLIENT | tee $CLIENT_DIR/config.ovpn
 
@@ -60,7 +60,7 @@ test -n "${ACTUAL_SERV_IP}" || false
 sed -ie s:${SERV_IP}:${ACTUAL_SERV_IP}:g "${CLIENT_DIR}/config.ovpn"
 
 # Fire up a client in a container
-docker run --privileged --name "${CLIENT}" -e "DEBUG=${DEBUG+x}" --volume $CLIENT_DIR:/client $IMG /client/wait-for-connect.sh > /dev/null 2>&1
+docker run --privileged --name "${CLIENT}" -e "DEBUG=${DEBUG+x}" --volume $CLIENT_DIR:/client $IMG /client/wait-for-connect.sh 2>&1
 
 #
 # Clean up after the run
