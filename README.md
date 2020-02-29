@@ -3,7 +3,8 @@
 [![Pipeline Status](https://gitlab.com/ix.ai/openvpn/badges/master/pipeline.svg)](https://gitlab.com/ix.ai/openvpn/)
 [![Docker Stars](https://img.shields.io/docker/stars/ixdotai/openvpn.svg)](https://hub.docker.com/r/ixdotai/openvpn/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/ixdotai/openvpn.svg)](https://hub.docker.com/r/ixdotai/openvpn/)
-[![ImageLayers](https://images.microbadger.com/badges/image/ixdotai/openvpn.svg)](https://microbadger.com/#/images/ixdotai/openvpn)
+[![ImageLayers](https://images.microbadger.com/badges/image/ixdotai/openvpn.svg)](https://microbadger.com/images/ixdotai/openvpn)
+[![Latest Version](https://images.microbadger.com/badges/version/ixdotai/openvpn.svg)](https://microbadger.com/images/ixdotai/openvpn)
 [![Gitlab Project](https://img.shields.io/badge/GitLab-Project-554488.svg)](https://gitlab.com/ix.ai/openvpn/)
 
 
