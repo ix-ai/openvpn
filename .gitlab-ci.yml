@@ -12,6 +12,7 @@ services:
 stages:
   - test
   - release
+  - post_release
 
 test:
   image: docker:latest
@@ -54,7 +55,7 @@ deploy:
     - tags
 
 dockerhub:readme:
-  stage: release
+  stage: post_release
   variables:
     README_PATH: ${CI_PROJECT_DIR}/README.md
   rules:
@@ -67,7 +68,7 @@ dockerhub:readme:
     - node /app/index.js
 
 microbadger:
-  stage: release
+  stage: post_release
   rules:
     - if: '$MICROBADGER_TOKEN =~ /.+/ && $DOCKERHUB_REPO_NAME =~ /.+/'
       when: on_success
