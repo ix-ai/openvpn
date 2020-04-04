@@ -9,6 +9,8 @@ include:
     file: '/common.yml'
 
 test:
+  services:
+    - docker:dind
   image: docker:latest
   stage: test
   before_script:
