@@ -1,20 +1,16 @@
 variables:
-  DOCKERHUB_REPO_NAME: openvpn
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_CERT_PATH: "/certs/client"
-  DOCKER_TLS: 'true'
-  DOCKER_HOST: tcp://docker:2376/
   ENABLE_ARM64: 'true'
+  ENABLE_ARMv7: 'true'
+  ENABLE_ARMv6: 'true'
+  DOCKERHUB_REPO_NAME: openvpn
 
-services:
-  - docker:dind
-
-stages:
-  - test
-  - release
-  - post_release
+include:
+  - project: 'ix.ai/ci-templates'
+    file: '/common.yml'
 
 test:
+  services:
+    - docker:dind
   image: docker:latest
   stage: test
   before_script:
@@ -29,40 +25,3 @@ test:
     - test/run.sh "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
   only:
     - merge_requests
-
-deploy:
-  image: ixdotai/docker-buildx-qemu:latest
-  stage: release
-  before_script:
-    - build/buildx-init.sh
-    - build/docker-login.sh
-  script:
-    - export CI_BUILDX_ARCHS="$(cat /tmp/${CI_PROJECT_NAME}-${CI_COMMIT_SHA}-platforms)"
-    - export TAG="${CI_COMMIT_REF_NAME}"
-    - if [ "${CI_COMMIT_REF_NAME}" == "master" ]; then export TAG="latest"; fi
-    - export DESTINATIONS="--tag ${CI_REGISTRY_IMAGE}:${TAG}"
-    - |
-      if [ -n "${DOCKERHUB_USERNAME}" ] && [ -n "${DOCKERHUB_PASSWORD}" ]; then
-        echo "Tagging with ${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}:${TAG}"
-        export DESTINATIONS="${DESTINATIONS} --tag ${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}:${TAG}"
-      fi
-    - echo docker buildx build --platform="$CI_BUILDX_ARCHS" --progress=plain --pull --push ${DESTINATIONS} .
-    - docker buildx build --platform="$CI_BUILDX_ARCHS" --progress=plain --pull --push ${DESTINATIONS} .
-  after_script:
-    - build/buildx-shutdown.sh
-  only:
-    - master
-    - tags
-
-dockerhub:readme:
-  stage: post_release
-  variables:
-    README_PATH: ${CI_PROJECT_DIR}/README.md
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master" && $DOCKERHUB_REPO_NAME =~ /.+/ && $DOCKERHUB_USERNAME =~ /.+/ && $DOCKERHUB_PASSWORD =~ /.+/'
-      when: on_success
-  image:
-    name: sheogorath/readme-to-dockerhub:latest
-    entrypoint: ['']
-  script:
-    - node /app/index.js
