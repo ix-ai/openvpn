@@ -25,8 +25,8 @@ test:
     - apk add --no-cache bash git iptables
     - git clone https://github.com/docker-library/official-images.git official-images
   script:
-    - official-images/test/run.sh "$IMAGE"
-    - test/run.sh "$IMAGE"
+    - official-images/test/run.sh "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
+    - test/run.sh "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
   only:
     - merge_requests
 
