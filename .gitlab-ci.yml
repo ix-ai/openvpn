@@ -66,13 +66,3 @@ dockerhub:readme:
     entrypoint: ['']
   script:
     - node /app/index.js
-
-microbadger:
-  stage: post_release
-  rules:
-    - if: '$MICROBADGER_TOKEN =~ /.+/ && $DOCKERHUB_REPO_NAME =~ /.+/'
-      when: on_success
-  image: alpine:latest
-  script:
-    - curl -V||apk add curl
-    - curl -s -XPOST "https://hooks.microbadger.com/images/${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}/${MICROBADGER_TOKEN}"
