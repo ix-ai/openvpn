@@ -101,6 +101,7 @@ usage() {
     echo " -k    Set keepalive. Default: '10 60'"
     echo " -m    Set client MTU"
     echo " -N    Configure NAT to access external server network"
+		echo " -Q    Enable DNSMASQ server"
     echo " -t    Use TAP device (instead of TUN device)"
     echo " -T    Encrypt packets with the given cipher algorithm instead of the default one (tls-cipher)."
     echo " -z    Enable comp-lzo compression."
@@ -160,6 +161,7 @@ OVPN_DEVICEN=0
 OVPN_DISABLE_PUSH_BLOCK_DNS=0
 OVPN_DNS=1
 OVPN_DNS_SERVERS=()
+OVPN_DNSMASQ=0
 OVPN_ENV=${OPENVPN}/ovpn_env.sh
 OVPN_EXTRA_CLIENT_CONFIG=()
 OVPN_EXTRA_SERVER_CONFIG=()
@@ -250,6 +252,9 @@ while getopts ":a:e:E:C:T:r:s:du:bcp:n:k:DNm:f:tz2" opt; do
             ;;
         t)
             OVPN_DEVICE="tap"
+            ;;
+				Q)
+            OVPN_DNSMASQ=1
             ;;
         z)
             OVPN_COMP_LZO=1
