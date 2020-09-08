@@ -41,7 +41,8 @@ function addArg {
 # this function checks if there are any spaces in $OVPN_NATDEVICE and, if yes, sets up NAT for every item
 function setupIptablesAndRouting {
     if [[ $OVPN_NATDEVICE = *" "* ]]; then
-      for i in "${OVPN_NATDEVICE[@]}"; do
+      read -a ARR <<< $OVPN_NATDEVICE
+      for i in "${ARR[@]}"; do
         setupIptablesAndRoutingPerDevice $i
       done
     else
