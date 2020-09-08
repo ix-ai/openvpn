@@ -14,20 +14,20 @@ set -eu
 _showed_traceback=f
 
 traceback() {
-	# Hide the traceback() call.
-	local -i start=$(( ${1:-0} + 1 ))
-	local -i end=${#BASH_SOURCE[@]}
-	local -i i=0
-	local -i j=0
+  # Hide the traceback() call.
+  local -i start=$(( ${1:-0} + 1 ))
+  local -i end=${#BASH_SOURCE[@]}
+  local -i i=0
+  local -i j=0
 
-	echo "Traceback (last called is first):" 1>&2
-	for ((i=${start}; i < ${end}; i++)); do
-		j=$(( $i - 1 ))
-		local function="${FUNCNAME[$i]}"
-		local file="${BASH_SOURCE[$i]}"
-		local line="${BASH_LINENO[$j]}"
-		echo "     ${function}() in ${file}:${line}" 1>&2
-	done
+  echo "Traceback (last called is first):" 1>&2
+  for ((i=${start}; i < ${end}; i++)); do
+    j=$(( $i - 1 ))
+    local function="${FUNCNAME[$i]}"
+    local file="${BASH_SOURCE[$i]}"
+    local line="${BASH_LINENO[$j]}"
+    echo "     ${function}() in ${file}:${line}" 1>&2
+  done
 }
 
 on_error() {
@@ -101,6 +101,7 @@ usage() {
     echo " -k    Set keepalive. Default: '10 60'"
     echo " -m    Set client MTU"
     echo " -N    Configure NAT to access external server network"
+    echo " -Q    Enable DNSMASQ server"
     echo " -t    Use TAP device (instead of TUN device)"
     echo " -T    Encrypt packets with the given cipher algorithm instead of the default one (tls-cipher)."
     echo " -z    Enable comp-lzo compression."
@@ -160,6 +161,7 @@ OVPN_DEVICEN=0
 OVPN_DISABLE_PUSH_BLOCK_DNS=0
 OVPN_DNS=1
 OVPN_DNS_SERVERS=()
+OVPN_DNSMASQ=0
 OVPN_ENV=${OPENVPN}/ovpn_env.sh
 OVPN_EXTRA_CLIENT_CONFIG=()
 OVPN_EXTRA_SERVER_CONFIG=()
@@ -179,7 +181,7 @@ OVPN_TLS_CIPHER=''
 [ -r "$OVPN_ENV" ] && source "$OVPN_ENV"
 
 # Parse arguments
-while getopts ":a:e:E:C:T:r:s:du:bcp:n:k:DNm:f:tz2" opt; do
+while getopts ":a:e:E:C:T:r:s:du:bcp:n:k:DNm:f:tQz2" opt; do
     case $opt in
         a)
             OVPN_AUTH="$OPTARG"
@@ -250,6 +252,9 @@ while getopts ":a:e:E:C:T:r:s:du:bcp:n:k:DNm:f:tz2" opt; do
             ;;
         t)
             OVPN_DEVICE="tap"
+            ;;
+        Q)
+            OVPN_DNSMASQ=1
             ;;
         z)
             OVPN_COMP_LZO=1

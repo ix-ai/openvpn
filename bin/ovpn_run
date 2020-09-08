@@ -61,6 +61,18 @@ function setupIptablesAndRoutingPerDevice {
     done
 }
 
+# starts dnsmasq
+function startDnsmasq() {
+  dnsmasq \
+    --no-hosts \
+    --localise-queries \
+    --no-poll \
+    --cache-size=0 \
+    --no-negcache \
+    --log-facility /dnsmasq.log
+  tail -F /dnsmasq.log &
+}
+
 addArg "--config" "$OPENVPN/openvpn.conf"
 
 source "$OPENVPN/ovpn_env.sh"
@@ -105,6 +117,10 @@ if [ $? = 0 ]; then
     sysctl -w net.ipv6.conf.all.disable_ipv6=0 || echo "Failed to enable IPv6 support"
     sysctl -w net.ipv6.conf.default.forwarding=1 || echo "Failed to enable IPv6 Forwarding default"
     sysctl -w net.ipv6.conf.all.forwarding=1 || echo "Failed to enable IPv6 Forwarding"
+fi
+
+if [ "${OVPN_DNSMASQ}" == "1" ]; then
+  startDnsmasq
 fi
 
 echo "Running 'openvpn ${ARGS[@]} ${USER_ARGS[@]}'"
