@@ -14,20 +14,20 @@ set -eu
 _showed_traceback=f
 
 traceback() {
-	# Hide the traceback() call.
-	local -i start=$(( ${1:-0} + 1 ))
-	local -i end=${#BASH_SOURCE[@]}
-	local -i i=0
-	local -i j=0
+  # Hide the traceback() call.
+  local -i start=$(( ${1:-0} + 1 ))
+  local -i end=${#BASH_SOURCE[@]}
+  local -i i=0
+  local -i j=0
 
-	echo "Traceback (last called is first):" 1>&2
-	for ((i=${start}; i < ${end}; i++)); do
-		j=$(( $i - 1 ))
-		local function="${FUNCNAME[$i]}"
-		local file="${BASH_SOURCE[$i]}"
-		local line="${BASH_LINENO[$j]}"
-		echo "     ${function}() in ${file}:${line}" 1>&2
-	done
+  echo "Traceback (last called is first):" 1>&2
+  for ((i=${start}; i < ${end}; i++)); do
+    j=$(( $i - 1 ))
+    local function="${FUNCNAME[$i]}"
+    local file="${BASH_SOURCE[$i]}"
+    local line="${BASH_LINENO[$j]}"
+    echo "     ${function}() in ${file}:${line}" 1>&2
+  done
 }
 
 on_error() {
@@ -253,7 +253,7 @@ while getopts ":a:e:E:C:T:r:s:du:bcp:n:k:DNm:f:tQz2" opt; do
         t)
             OVPN_DEVICE="tap"
             ;;
-				Q)
+        Q)
             OVPN_DNSMASQ=1
             ;;
         z)
