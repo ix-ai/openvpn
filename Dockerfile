@@ -8,6 +8,7 @@ LABEL maintainer="docker@ix.ai" \
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing/" >> /etc/apk/repositories && \
     apk --no-cache upgrade && \
     apk add --no-cache --update openvpn \
+                                dnsmasq \
                                 iptables \
                                 bash \
                                 easy-rsa \
