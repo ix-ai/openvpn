@@ -8,20 +8,20 @@ include:
   - project: 'ix.ai/ci-templates'
     file: '/common.yml'
 
-# test:
-#   services:
-#     - docker:dind
-#   image: docker:latest
-#   stage: test
-#   before_script:
-#     - docker build --tag "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}" .
-#     - docker inspect "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
-#     - docker run --rm "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}" openvpn --version || true # why does it return 1?
-#     - docker run --rm "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}" openssl version
-#     - apk add --no-cache bash git iptables
-#     - git clone https://github.com/docker-library/official-images.git official-images
-#   script:
-#     - official-images/test/run.sh "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
-#     - test/run.sh "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
-#   only:
-#     - merge_requests
+test:
+  services:
+    - docker:dind
+  image: docker:latest
+  stage: test
+  before_script:
+    - docker build --tag "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}" .
+    - docker inspect "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
+    - docker run --rm "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}" openvpn --version || true # why does it return 1?
+    - docker run --rm "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}" openssl version
+    - apk add --no-cache bash git iptables
+    - git clone https://github.com/docker-library/official-images.git official-images
+  script:
+    - official-images/test/run.sh "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
+    - test/run.sh "${DOCKERHUB_REPO_PREFIX}/${DOCKERHUB_REPO_NAME}"
+  only:
+    - merge_requests
