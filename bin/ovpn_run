@@ -74,6 +74,7 @@ function startDnsmasq() {
   if [ -n "${DNSMASQ_CONF:-}" ]; then
     DNSMASQ_ARGS+=( "--conf-file=${DNSMASQ_CONF}" )
   fi
+  echo "Running 'dnsmasq ${DNSMASQ_ARGS[*]}'"
   dnsmasq ${DNSMASQ_ARGS[*]}
   tail -F /dnsmasq.log &
 }
