@@ -63,13 +63,18 @@ function setupIptablesAndRoutingPerDevice {
 
 # starts dnsmasq
 function startDnsmasq() {
-  dnsmasq \
-    --no-hosts \
-    --localise-queries \
-    --no-poll \
-    --cache-size=0 \
-    --no-negcache \
-    --log-facility /dnsmasq.log
+  DNSMASQ_ARGS=(
+    "--no-hosts"
+    "--localise-queries"
+    "--no-poll"
+    "--cache-size=0"
+    "--no-negcache"
+    "--log-facility /dnsmasq.log"
+  )
+  if [ -n "${DNSMASQ_CONF:-}" ]; then
+    DNSMASQ_ARGS+=( "--conf-file=${DNSMASQ_CONF}" )
+  fi
+  dnsmasq ${DNSMASQ_ARGS[*]}
   tail -F /dnsmasq.log &
 }
 
@@ -123,5 +128,5 @@ if [ "${OVPN_DNSMASQ}" == "1" ]; then
   startDnsmasq
 fi
 
-echo "Running 'openvpn ${ARGS[@]} ${USER_ARGS[@]}'"
-exec openvpn ${ARGS[@]} ${USER_ARGS[@]}
+echo "Running 'openvpn ${ARGS[*]} ${USER_ARGS[*]}'"
+exec openvpn ${ARGS[*]} ${USER_ARGS[*]}
