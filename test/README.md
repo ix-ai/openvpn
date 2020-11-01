@@ -4,9 +4,9 @@ Philosophy is to not re-invent the wheel while allowing users to quickly test re
 
 Example invocation from top-level of repository:
 
-    docker build -t ixdotai/openvpn .
-    test/run.sh ixdotai/openvpn
-    # Be sure to pull ixdotai/openvpn:latest after you're done testing
+    docker build -t registry.gitlab.com/ix.ai/openvpn .
+    test/run.sh registry.gitlab.com/ix.ai/openvpn
+    # Be sure to pull registry.gitlab.com/ix.ai/openvpn:latest after you're done testing
 
 More details: https://github.com/docker-library/official-images/tree/master/test
 

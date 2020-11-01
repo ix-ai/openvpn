@@ -2,7 +2,7 @@
 set -e
 
 testAlias+=(
-	[ixdotai/openvpn]='openvpn'
+	[registry.gitlab.com/ix.ai/openvpn]='openvpn'
 )
 
 imageTests+=(

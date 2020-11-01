@@ -12,6 +12,7 @@ OpenVPN server in a Docker container complete with an EasyRSA PKI CA.
 
 #### Upstream Links
 
+* Gitlab Registry @ [registry.gitlab.com/ix.ai/openvpn](https://gitlab.com/ix.ai/openvpn/container_registry)
 * Docker Registry @ [ixdotai/openvpn](https://hub.docker.com/r/ixdotai/openvpn/)
 * GitLab @ [ix.ai/openvpn](https://gitlab.com/ix.ai/openvpn)
 * GitHub @ [ix-ai/openvpn](https://github.com/ix-ai/openvpn)
@@ -30,20 +31,20 @@ OpenVPN server in a Docker container complete with an EasyRSA PKI CA.
   private key used by the newly generated certificate authority.
 
       docker volume create --name $OVPN_DATA
-      docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm ixdotai/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM
-      docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it ixdotai/openvpn ovpn_initpki
+      docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm registry.gitlab.com/ix.ai/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM
+      docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it registry.gitlab.com/ix.ai/openvpn ovpn_initpki
 
 * Start OpenVPN server process
 
-      docker run -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN ixdotai/openvpn
+      docker run -v $OVPN_DATA:/etc/openvpn -d -p 1194:1194/udp --cap-add=NET_ADMIN registry.gitlab.com/ix.ai/openvpn
 
 * Generate a client certificate without a passphrase
 
-      docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it ixdotai/openvpn easyrsa build-client-full CLIENTNAME nopass
+      docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm -it registry.gitlab.com/ix.ai/openvpn easyrsa build-client-full CLIENTNAME nopass
 
 * Retrieve the client configuration with embedded certificates
 
-      docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm ixdotai/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
+      docker run -v $OVPN_DATA:/etc/openvpn --log-driver=none --rm registry.gitlab.com/ix.ai/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
 
 ## Next Steps
 
@@ -68,7 +69,7 @@ If you prefer to use `docker-compose` please refer to the [documentation](docs/d
 
 * Create an environment variable with the name DEBUG and value of 1 to enable debug output (using "docker -e").
 
-        docker run -v $OVPN_DATA:/etc/openvpn -p 1194:1194/udp --privileged -e DEBUG=1 ixdotai/openvpn
+        docker run -v $OVPN_DATA:/etc/openvpn -p 1194:1194/udp --privileged -e DEBUG=1 registry.gitlab.com/ix.ai/openvpn
 
 * Test using a client that has openvpn installed correctly
 
@@ -86,7 +87,7 @@ If you prefer to use `docker-compose` please refer to the [documentation](docs/d
 
 ## How Does It Work?
 
-Initialize the volume container using the `ixdotai/openvpn` image with the
+Initialize the volume container using the `registry.gitlab.com/ix.ai/openvpn` image with the
 included scripts to automatically generate:
 
 - Diffie-Hellman parameters
@@ -102,11 +103,11 @@ declares that directory as a volume. It means that you can start another
 container with the `-v` argument, and access the configuration.
 The volume also holds the PKI keys and certs so that it could be backed up.
 
-To generate a client certificate, `ixdotai/openvpn` uses EasyRSA via the
+To generate a client certificate, `registry.gitlab.com/ix.ai/openvpn` uses EasyRSA via the
 `easyrsa` command in the container's path.  The `EASYRSA_*` environmental
 variables place the PKI CA under `/etc/openvpn/pki`.
 
-Conveniently, `ixdotai/openvpn` comes with a script called `ovpn_getclient`,
+Conveniently, `registry.gitlab.com/ix.ai/openvpn` comes with a script called `ovpn_getclient`,
 which dumps an inline OpenVPN client configuration file.  This single file can
 then be given to a client for access to the VPN.
 
@@ -172,7 +173,7 @@ OpenVPN with latest OpenSSL on Ubuntu 12.04 LTS).
 ### It Doesn't Stomp All Over the Server's Filesystem
 
 Everything for the Docker container is contained in two images: the ephemeral
-run time image (ixdotai/openvpn) and the `$OVPN_DATA` data volume. To remove
+run time image (registry.gitlab.com/ix.ai/openvpn) and the `$OVPN_DATA` data volume. To remove
 it, remove the corresponding containers, `$OVPN_DATA` data volume and Docker
 image and it's completely removed.  This also makes it easier to run multiple
 servers since each lives in the bubble of the container (of course multiple IPs

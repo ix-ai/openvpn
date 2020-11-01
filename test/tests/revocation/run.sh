@@ -24,7 +24,7 @@ function cleanup {
 OVPN_DATA="revocation-data"
 CLIENT1="gitlab-client1"
 CLIENT2="gitlab-client2"
-IMG="ixdotai/openvpn"
+IMG="registry.gitlab.com/ix.ai/openvpn"
 NAME="ovpn-test"
 CLIENT_DIR="$(readlink -f "$(dirname "${BASH_SOURCE[0]}")/../../client")"
 SERV_IP="$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::' | head -n1)"

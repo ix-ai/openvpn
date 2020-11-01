@@ -10,18 +10,18 @@ Another example would be trying to open a VPN connection from within a very rest
 ## Using TCP
 Those requiring TCP connections should initialize the data container by specifying the TCP protocol and port number:
 
-    docker run -v $OVPN_DATA:/etc/openvpn --rm ixdotai/openvpn ovpn_genconfig -u tcp://VPN.SERVERNAME.COM:443
-    docker run -v $OVPN_DATA:/etc/openvpn --rm -it ixdotai/openvpn ovpn_initpki
+    docker run -v $OVPN_DATA:/etc/openvpn --rm registry.gitlab.com/ix.ai/openvpn ovpn_genconfig -u tcp://VPN.SERVERNAME.COM:443
+    docker run -v $OVPN_DATA:/etc/openvpn --rm -it registry.gitlab.com/ix.ai/openvpn ovpn_initpki
 
 Because the server container always exposes port 1194, regardless of the
 specified protocol, adjust the mapping appropriately:
 
-    docker run -v $OVPN_DATA:/etc/openvpn -d -p 443:1194/tcp --cap-add=NET_ADMIN ixdotai/openvpn
+    docker run -v $OVPN_DATA:/etc/openvpn -d -p 443:1194/tcp --cap-add=NET_ADMIN registry.gitlab.com/ix.ai/openvpn
 
 ## Running a Second Fallback TCP Container
 Instead of choosing between UDP and TCP, you can use both. A single instance of OpenVPN can only listen for a single protocol on a single port, but this image makes it easy to run two instances simultaneously. After building, configuring, and starting a standard container listening for UDP traffic on 1194, you can start a second container listening for tcp traffic on port 443:
 
-    docker run -v $OVPN_DATA:/etc/openvpn --rm -p 443:1194/tcp --privileged ixdotai/openvpn ovpn_run --proto tcp
+    docker run -v $OVPN_DATA:/etc/openvpn --rm -p 443:1194/tcp --privileged registry.gitlab.com/ix.ai/openvpn ovpn_run --proto tcp
 
 `ovpn_run` will load all the values from the default config file, and `--proto tcp` will override the protocol setting.
 
@@ -36,7 +36,7 @@ First, change the listening port of your existing webserver (for instance from 4
 
 Then initialize the data container by specifying the TCP protocol, port 443 and the port-share option:
 
-    docker run -v $OVPN_DATA:/etc/openvpn --rm ixdotai/openvpn ovpn_genconfig \
+    docker run -v $OVPN_DATA:/etc/openvpn --rm registry.gitlab.com/ix.ai/openvpn ovpn_genconfig \
     -u tcp://VPN.SERVERNAME.COM:443 \
     -e 'port-share VPN.SERVERNAME.COM 4433'
     

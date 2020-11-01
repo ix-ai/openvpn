@@ -20,7 +20,7 @@ function cleanup {
 
 [ -n "${DEBUG+x}" ] && set -x
 OVPN_DATA=iptables-data
-IMG="ixdotai/openvpn"
+IMG="registry.gitlab.com/ix.ai/openvpn"
 NAME="ovpn-iptables"
 SERV_IP=$(ip -4 -o addr show scope global  | awk '{print $4}' | sed -e 's:/.*::' | head -n1)
 

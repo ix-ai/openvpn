@@ -9,12 +9,12 @@ The [`ovpn_genconfig`](/bin/ovpn_genconfig) script is intended for simple config
 
         mkdir openvpn0
         cd openvpn0
-        docker run --rm -v $PWD:/etc/openvpn ixdotai/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM:1194
-        docker run --rm -v $PWD:/etc/openvpn -it ixdotai/openvpn ovpn_initpki
+        docker run --rm -v $PWD:/etc/openvpn registry.gitlab.com/ix.ai/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM:1194
+        docker run --rm -v $PWD:/etc/openvpn -it registry.gitlab.com/ix.ai/openvpn ovpn_initpki
         vim openvpn.conf
-        docker run --rm -v $PWD:/etc/openvpn -it ixdotai/openvpn easyrsa build-client-full CLIENTNAME nopass
-        docker run --rm -v $PWD:/etc/openvpn ixdotai/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
+        docker run --rm -v $PWD:/etc/openvpn -it registry.gitlab.com/ix.ai/openvpn easyrsa build-client-full CLIENTNAME nopass
+        docker run --rm -v $PWD:/etc/openvpn registry.gitlab.com/ix.ai/openvpn ovpn_getclient CLIENTNAME > CLIENTNAME.ovpn
 
 * Start the server with:
 
-        docker run -v $PWD:/etc/openvpn -d -p 1194:1194/udp --privileged ixdotai/openvpn
+        docker run -v $PWD:/etc/openvpn -d -p 1194:1194/udp --privileged registry.gitlab.com/ix.ai/openvpn

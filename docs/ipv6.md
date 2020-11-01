@@ -53,7 +53,7 @@ On modern **systemd** distributions copy the service file and modify it and relo
 
 Copy the systemd init file from the docker-openvpn /init directory of the repository and install into `/etc/systemd/system/docker-openvpn.service`
 
-    curl -o /etc/systemd/system/docker-openvpn@.service 'https://raw.githubusercontent.com/ixdotai/docker-openvpn/dev/init/docker-openvpn%40.service'
+    curl -o /etc/systemd/system/docker-openvpn@.service 'https://raw.githubusercontent.com/registry.gitlab.com/ix.ai/docker-openvpn/dev/init/docker-openvpn%40.service'
 
 Edit the file, replace `IP6_PREFIX` value with the value of your /64 prefix.
 
@@ -97,5 +97,5 @@ This will allow connections over IPv4 and IPv6.
 
 Generate server configuration with the udp6 or tcp6 protocol:
 
-    docker run -v $OVPN_DATA:/etc/openvpn --rm ixdotai/openvpn ovpn_genconfig -u udp6://VPN.SERVERNAME.COM
-    docker run -v $OVPN_DATA:/etc/openvpn --rm ixdotai/openvpn ovpn_genconfig -u tcp6://VPN.SERVERNAME.COM
+    docker run -v $OVPN_DATA:/etc/openvpn --rm registry.gitlab.com/ix.ai/openvpn ovpn_genconfig -u udp6://VPN.SERVERNAME.COM
+    docker run -v $OVPN_DATA:/etc/openvpn --rm registry.gitlab.com/ix.ai/openvpn ovpn_genconfig -u tcp6://VPN.SERVERNAME.COM

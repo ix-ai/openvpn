@@ -8,7 +8,7 @@ services:
   openvpn:
     cap_add:
      - NET_ADMIN
-    image: ixdotai/openvpn
+    image: registry.gitlab.com/ix.ai/openvpn
     container_name: openvpn
     ports:
      - "1194:1194/udp"

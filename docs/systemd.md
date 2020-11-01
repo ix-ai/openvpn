@@ -23,13 +23,13 @@ To use and enable automatic start by systemd:
    
 2. Initialize the data container, but don't start the container :
    
-       docker run -v $OVPN_DATA:/etc/openvpn --rm ixdotai/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM
-       docker run -v $OVPN_DATA:/etc/openvpn --rm -it ixdotai/openvpn ovpn_initpki
+       docker run -v $OVPN_DATA:/etc/openvpn --rm registry.gitlab.com/ix.ai/openvpn ovpn_genconfig -u udp://VPN.SERVERNAME.COM
+       docker run -v $OVPN_DATA:/etc/openvpn --rm -it registry.gitlab.com/ix.ai/openvpn ovpn_initpki
    
-3. Download the [docker-openvpn@.service](https://raw.githubusercontent.com/ixdotai/docker-openvpn/master/init/docker-openvpn%40.service)
+3. Download the [docker-openvpn@.service](https://raw.githubusercontent.com/registry.gitlab.com/ix.ai/docker-openvpn/master/init/docker-openvpn%40.service)
    file to `/etc/systemd/system`:
 
-        curl -L https://raw.githubusercontent.com/ixdotai/docker-openvpn/master/init/docker-openvpn%40.service | sudo tee /etc/systemd/system/docker-openvpn@.service
+        curl -L https://raw.githubusercontent.com/registry.gitlab.com/ix.ai/docker-openvpn/master/init/docker-openvpn%40.service | sudo tee /etc/systemd/system/docker-openvpn@.service
 
 4. Enable and start the service with:
 

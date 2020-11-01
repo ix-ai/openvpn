@@ -26,7 +26,7 @@ function cleanup {
 
 OVPN_DATA=data-otp
 CLIENT=gitlab-client
-IMG=ixdotai/openvpn
+IMG=registry.gitlab.com/ix.ai/openvpn
 NAME="ovpn-otp"
 OTP_USER=otp
 CLIENT_DIR="$(readlink -f "$(dirname "${BASH_SOURCE[0]}")/../../client")"

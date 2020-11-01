@@ -4,5 +4,5 @@ start on filesystem and started docker
 stop on runlevel [!2345]
 respawn
 script
-  exec docker run -v ovpn-data-example:/etc/openvpn --rm -p 1194:1194/udp --cap-add=NET_ADMIN ixdotai/openvpn
+  exec docker run -v ovpn-data-example:/etc/openvpn --rm -p 1194:1194/udp --cap-add=NET_ADMIN registry.gitlab.com/ix.ai/openvpn
 end script
