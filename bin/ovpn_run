@@ -81,7 +81,14 @@ function startDnsmasq() {
 
 addArg "--config" "$OPENVPN/openvpn.conf"
 
-source "$OPENVPN/ovpn_env.sh"
+if [ ! -f "${OPENVPN}/ovpn_env.sh" ]; then
+  echo "Can't find ${OPENVPN}/ovpn_env.sh."
+  echo "Please make sure that OpenVPN is initialized and the proper volume is mounted!"
+  echo "For details see https://ix.ai/openvpn/-/blob/master/README.md#quick-start"
+  exit 1
+fi
+
+source "${OPENVPN}/ovpn_env.sh"
 
 mkdir -p /dev/net
 if [ ! -c /dev/net/tun ]; then
