@@ -56,7 +56,7 @@ test -n "${ACTUAL_SERV_IP}" || false
 # Test that easy_rsa generate CRLs with 'next publish' set to 3650 days.
 #
 DATE="$(docker exec $NAME openssl crl -nextupdate -noout -in /etc/openvpn/crl.pem)"
-crl_next_update="$(echo ${DATE} | cut -d'=' -f2 | tr -d 'GMT' | xargs)"
+crl_next_update="$(echo ${DATE} | cut -d'=' -f2 | sed 's/GMT//g' | xargs)"
 crl_next_update="$(date -u -d "$crl_next_update" "+%s")"
 now="$(docker exec $NAME date "+%s")"
 crl_remain="$(( $crl_next_update - $now ))"
