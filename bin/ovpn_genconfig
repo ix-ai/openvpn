@@ -295,9 +295,10 @@ else
     exit 1
 fi
 
-# Apply defaults. If dns servers were not defined with -n, use google nameservers
+# Apply defaults. If dns servers were not defined with -n, use quad9 nameservers
+# See also https://www.quad9.net/service/service-addresses-and-features
 set +u
-[ -z "${OVPN_DNS_SERVERS[0]}" ] && OVPN_DNS_SERVERS=("1.1.1.1" "1.0.0.1")
+[ -z "${OVPN_DNS_SERVERS[0]}" ] && OVPN_DNS_SERVERS=("9.9.9.11" "149.112.112.11")
 [ -z "$OVPN_PROTO" ] && OVPN_PROTO=udp
 [ -z "$OVPN_PORT" ] && OVPN_PORT=1194
 set -u

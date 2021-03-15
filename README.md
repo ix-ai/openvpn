@@ -129,8 +129,8 @@ establishing the VPN connection, all traffic will go through the VPN.
 This might cause problems if you use local DNS recursors which are not
 directly reachable, since you will try to reach them through the VPN
 and they might not answer to you. If that happens, use public DNS
-resolvers like those of CloudFlare (1.1.1.1 and 1.0.0.1) or OpenDNS
-(208.67.222.222 and 208.67.220.220).
+resolvers like those of quad9 (9.9.9.11 and 149.112.112.11), CloudFlare (1.1.1.1 and 1.0.0.1)
+or OpenDNS (208.67.222.222 and 208.67.220.220).
 
 
 ## Security Discussion
