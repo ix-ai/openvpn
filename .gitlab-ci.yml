@@ -4,6 +4,7 @@ variables:
   ENABLE_ARMv7: 'true'
   ENABLE_ARMv6: 'true'
   DOCKERHUB_REPO_NAME: openvpn
+  GITHUB_REPO_NAME: ix-ai/openvpn
 
 include:
   - project: 'ix.ai/ci-templates'

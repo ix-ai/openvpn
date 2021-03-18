@@ -13,6 +13,7 @@ OpenVPN server in a Docker container complete with an EasyRSA PKI CA.
 #### Upstream Links
 
 * Gitlab Registry @ [registry.gitlab.com/ix.ai/openvpn](https://gitlab.com/ix.ai/openvpn/container_registry)
+* GitHub Registry @ [ghcr.io/ix-ai/openvpn](https://ghcr.io/ix-ai/openvpn)
 * Docker Registry @ [ixdotai/openvpn](https://hub.docker.com/r/ixdotai/openvpn/)
 * GitLab @ [ix.ai/openvpn](https://gitlab.com/ix.ai/openvpn)
 * GitHub @ [ix-ai/openvpn](https://github.com/ix-ai/openvpn)
